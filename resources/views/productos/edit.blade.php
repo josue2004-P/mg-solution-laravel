@@ -71,8 +71,7 @@
         <div class="mb-3">
             <label for="path" class="form-label">Imagen</label><br>
             @if($producto->path)
-                <img src="{{ asset('storage/'.$producto->path) }}" width="100" class="mb-2" alt="Imagen actual">
-                <br>
+                <img src="{{ Storage::disk('s3')->url($producto->path )}}" width="50">
             @endif
             <input type="file" name="path" class="form-control">
             <small class="text-muted">Si seleccionas una nueva imagen, reemplazará la actual.</small>

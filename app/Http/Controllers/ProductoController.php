@@ -6,6 +6,8 @@ use App\Models\Producto;
 use App\Models\CategoriaProducto;
 use App\Models\MarcaProducto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
 
 class ProductoController extends Controller
 {
@@ -45,7 +47,10 @@ class ProductoController extends Controller
 
         // Guardar imagen si existe
         if ($request->hasFile('path')) {
-            $validated['path'] = $request->file('path')->store('productos', 'public');
+            // $validated['path'] = $request->file('path')->store('productos', 'public');
+            $file = $request->file('path');
+            $route = Storage::disk('s3')->put('productos',$file);
+            $validated['path'] = $route ;
         }
 
         Producto::create($validated);
@@ -78,9 +83,18 @@ class ProductoController extends Controller
             'marca_producto_id' => 'nullable|exists:marcas_productos,id',
         ]);
 
+        // Guardar imagen si existe
         if ($request->hasFile('path')) {
-            $validated['path'] = $request->file('path')->store('productos', 'public');
+            // $validated['path'] = $request->file('path')->store('productos', 'public');
+            $file = $request->file('path');
+            $route = Storage::disk('s3')->put('productos',$file);
+            $validated['path'] = $route ;
+
+            if($producto->path){
+                Storage::disk('s3')->delete($producto->path);
+            }
         }
+
 
         $producto->update($validated);
 
@@ -92,6 +106,10 @@ class ProductoController extends Controller
      */
     public function destroy(Producto $producto)
     {
+
+        if($producto->path){
+            Storage::disk('s3')->delete($producto->path);
+        }
         $producto->delete();
         return redirect()->route('productos.index')->with('success', 'Producto eliminado correctamente');
     }

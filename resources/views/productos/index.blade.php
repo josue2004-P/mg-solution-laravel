@@ -29,7 +29,7 @@
                     <td>{{ $producto->stock }}</td>
                     <td>
                         @if($producto->path)
-                            <img src="{{ asset('storage/'.$producto->path) }}" width="50">
+                            <img src="{{ Storage::disk('s3')->url($producto->path )}}" width="50">
                         @endif
                     </td>
                     <td>
